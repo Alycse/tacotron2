@@ -18,6 +18,8 @@ from denoiser import Denoiser
 
 from pydub import AudioSegment
 
+#command: python synthesize.py ""
+
 if len(sys.argv) < 3:
     print("Argument list invalid")
     exit()
@@ -31,22 +33,23 @@ def plot_data(data, figsize=(16, 4)):
 hparams = create_hparams()
 hparams.sampling_rate = 22050
 
-checkpoint_path = sys.argv[1]
+checkpoint_path = sys.argv[0]
 model = load_model(hparams)
 model.load_state_dict(torch.load(checkpoint_path)['state_dict'])
 _ = model.cuda().eval().half()
 
-if len(sys.argv) < 3:
+if len(sys.argv) < 2:
     waveglow_path = 'models/waveglow_models/waveglow_256channels.pt'
 else:
-    waveglow_path = sys.argv[2]
+    waveglow_path = sys.argv[1]
 waveglow = torch.load(waveglow_path)['model']
 waveglow.cuda().eval().half()
 for k in waveglow.convinv:
     k.float()
 denoiser = Denoiser(waveglow)
 
-text = sys.argv[0]
+evaluation_file = open("evaluation_text.txt", "r")
+text = evaluation_file.read()
 sequence = np.array(text_to_sequence(text, ['english_cleaners']))[None, :]
 sequence = torch.autograd.Variable(
     torch.from_numpy(sequence)).cuda().long()
