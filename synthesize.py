@@ -18,7 +18,7 @@ from denoiser import Denoiser
 
 from pydub import AudioSegment
 
-#command: python synthesize.py ""
+#command: python synthesize.py [tacotron2-model-path] [waveglow-model-path]
 
 if len(sys.argv) < 3:
     print("Argument list invalid")
@@ -33,7 +33,7 @@ def plot_data(data, figsize=(16, 4)):
 hparams = create_hparams()
 hparams.sampling_rate = 22050
 
-checkpoint_path = sys.argv[0]
+checkpoint_path = sys.argv[1]
 model = load_model(hparams)
 model.load_state_dict(torch.load(checkpoint_path)['state_dict'])
 _ = model.cuda().eval().half()
@@ -41,7 +41,7 @@ _ = model.cuda().eval().half()
 if len(sys.argv) < 2:
     waveglow_path = 'models/waveglow_models/waveglow_256channels.pt'
 else:
-    waveglow_path = sys.argv[1]
+    waveglow_path = sys.argv[2]
 waveglow = torch.load(waveglow_path)['model']
 waveglow.cuda().eval().half()
 for k in waveglow.convinv:

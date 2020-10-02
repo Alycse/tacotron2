@@ -44,10 +44,10 @@ for entry in os.listdir(rawAudioDirectoryPath):
             print('seconds = {}'.format(len(f) / f.samplerate))
             seconds += len(f) / f.samplerate
 
-            newFilename = codename_capped "-" + str(count);
+            newFilename = codename_capped + "-" + str(count);
 
-            newListFilename = codename + "/wavs/" + codename_capped + "-" + str(count) + ".wav";
-            newWaveListFilename = codename + "/wavs/" + codename_capped + "-" + str(count) + ".wav";
+            newListFilename = "datasets/" + codename + "/wavs/" + codename_capped + "-" + str(count) + ".wav";
+            newWaveListFilename = "datasets/" + codename + "/wavs/" + codename_capped + "-" + str(count) + ".wav";
 
             y, s = librosa.load(entry, sr=22050)
             wavio.write(generatedWavsDirectoryPath + "/" + newFilename + ".wav", y, 22050, sampwidth=2)
