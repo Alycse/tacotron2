@@ -1,6 +1,10 @@
 *.pt
 *.mp3
 
+__pycache__/
+*.py[cod]
+*$py.class
+
 savedfiles/
 datasets/
 filelists/
