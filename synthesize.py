@@ -20,7 +20,7 @@ from pydub import AudioSegment
 
 #command: python synthesize.py [tacotron2-model-path] [waveglow-model-path]
 
-if len(sys.argv) < 3:
+if len(sys.argv) < 2:
     print("Argument list invalid")
     exit()
 
@@ -38,7 +38,7 @@ model = load_model(hparams)
 model.load_state_dict(torch.load(checkpoint_path)['state_dict'])
 _ = model.cuda().eval().half()
 
-if len(sys.argv) < 2:
+if len(sys.argv) >= 2:
     waveglow_path = 'models/waveglow_models/waveglow_256channels.pt'
 else:
     waveglow_path = sys.argv[2]
