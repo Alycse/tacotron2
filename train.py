@@ -159,6 +159,10 @@ def train(output_directory, log_directory, checkpoint_path, warm_start, n_gpus,
     rank (int): rank of current gpu
     hparams (object): comma separated list of "name=value" pairs.
     """
+
+    if checkpoint_path is None:
+        checkpoint_path = load_checkpoint_path(output_directory)
+
     if hparams.distributed_run:
         init_distributed(hparams, n_gpus, rank, group_name)
 
@@ -247,19 +251,33 @@ def train(output_directory, log_directory, checkpoint_path, warm_start, n_gpus,
                          hparams.batch_size, n_gpus, collate_fn, logger,
                          hparams.distributed_run, rank)
                 if rank == 0:
-                    checkpoint_path = os.path.join(
-                        output_directory, "checkpoint_{}".format(iteration))
-                    save_checkpoint(model, optimizer, learning_rate, iteration,
-                                    checkpoint_path)
+                    checkpoint_path = os.path.join(output_directory, "checkpoint_{}".format(iteration))
+                    save_checkpoint(model, optimizer, learning_rate, iteration, checkpoint_path)
+
+                    save_checkpoint_path(output_directory, iteration)
 
             iteration += 1
 
+def save_checkpoint_path(output_directory, iteration):
+    f = open(os.path.join(output_directory, "checkpoint_path.txt"), "w")
+    f.write(os.path.join(output_directory, "checkpoint_{}".format(iteration)))
+    f.close()
+
+def load_checkpoint_path(output_directory):
+    f = open(os.path.join(output_directory, "checkpoint_path.txt"), "r")
+    try:
+        loaded_checkpoint_path = f.read()
+        f.close()
+        return loaded_checkpoint_path
+    except:
+        f.close()
+        return None
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('-o', '--output_directory', type=str,
+    parser.add_argument('-o', '--output_directory', type=str, default="outdir",
                         help='directory to save checkpoints')
-    parser.add_argument('-l', '--log_directory', type=str,
+    parser.add_argument('-l', '--log_directory', type=str, default="logdir",
                         help='directory to save tensorboard logs')
     parser.add_argument('-c', '--checkpoint_path', type=str, default=None,
                         required=False, help='checkpoint path')
