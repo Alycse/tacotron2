@@ -1,0 +1,8 @@
+*.pt
+*.mp3
+
+savedfiles/
+datasets/
+filelists/
+models/
+outdir/
