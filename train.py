@@ -264,13 +264,12 @@ def save_checkpoint_path(output_directory, iteration):
     f.close()
 
 def load_checkpoint_path(output_directory):
-    f = open(os.path.join(output_directory, "checkpoint_path.txt"), "r")
     try:
+        f = open(os.path.join(output_directory, "checkpoint_path.txt"), "r")
         loaded_checkpoint_path = f.read()
         f.close()
         return loaded_checkpoint_path
     except:
-        f.close()
         return None
 
 if __name__ == '__main__':

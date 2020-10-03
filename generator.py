@@ -59,10 +59,10 @@ for entry in os.listdir(rawAudioDirectoryPath):
             
             if("~" in entry):
                 metadata += newFilename + "|" + entry.replace(".wav", "").replace("~", "?") + "|" + entry.replace(".wav", "").replace("~", "?") + "\n"
-                if count <= 5:
+                if count <= 3:
                     metadatatest += newListFilename + "|" + entry.replace(".wav", "").replace("~", "?") + "\n"
                     metadatawaveglowtest += newWaveListFilename + "\n"
-                elif count <= 10:
+                elif count <= 6:
                     metadataval += newListFilename + "|" + entry.replace(".wav", "").replace("~", "?") + "\n"
                     metadatawaveglowtest += newWaveListFilename + "\n"
                 else:
@@ -70,10 +70,10 @@ for entry in os.listdir(rawAudioDirectoryPath):
                     metadatawaveglowtrain += newWaveListFilename + "\n"
             else:
                 metadata += newFilename + "|" + entry.replace(".wav", ".") + "|" + entry.replace(".wav", ".") + "\n"
-                if count <= 5:
+                if count <= 3:
                     metadatatest += newListFilename + "|" + entry.replace(".wav", ".") + "\n"
                     metadatawaveglowtest += newWaveListFilename + "\n"
-                elif count <= 10:
+                elif count <= 6:
                     metadataval += newListFilename + "|" + entry.replace(".wav", ".") + "\n"
                     metadatawaveglowtest += newWaveListFilename + "\n"
                 else:
