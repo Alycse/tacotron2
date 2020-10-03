@@ -16,13 +16,11 @@ from train import load_model
 from text import text_to_sequence
 from denoiser import Denoiser
 
+import os
+
 from pydub import AudioSegment
 
 #command: python synthesize.py [tacotron2-model-path] [waveglow-model-path]
-
-if len(sys.argv) < 2:
-    print("Argument list invalid")
-    exit()
 
 def plot_data(data, figsize=(16, 4)):
     fig, axes = plt.subplots(1, len(data), figsize=figsize)
@@ -33,15 +31,28 @@ def plot_data(data, figsize=(16, 4)):
 hparams = create_hparams()
 hparams.sampling_rate = 22050
 
-checkpoint_path = sys.argv[1]
+if len(sys.argv) >= 2:
+    checkpoint_path = sys.argv[1]
+    print("using custom tacotron2 model: ", sys.argv[1])
+else:
+    try:
+        f = open(os.path.join("outdir", "checkpoint_path.txt"), "r")
+        checkpoint_path = f.read()
+        print("using checkpoint tacotron2 model: ", checkpoint_path)
+        f.close()
+    except:
+        print("error loading checkpoint model")
+        exit()
 model = load_model(hparams)
 model.load_state_dict(torch.load(checkpoint_path)['state_dict'])
 _ = model.cuda().eval().half()
 
-if len(sys.argv) >= 2:
-    waveglow_path = 'models/waveglow_models/waveglow_256channels.pt'
-else:
+if len(sys.argv) >= 3:
     waveglow_path = sys.argv[2]
+    print("using custom waveglow model: ", sys.argv[2])
+else:
+    waveglow_path = 'models/waveglow_models/waveglow_256channels.pt'
+    print("using pretrained waveglow model: ", 'models/waveglow_models/waveglow_256channels.pt')
 waveglow = torch.load(waveglow_path)['model']
 waveglow.cuda().eval().half()
 for k in waveglow.convinv:
