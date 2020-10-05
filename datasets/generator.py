@@ -9,12 +9,12 @@ from pydub import AudioSegment
 import librosa
 import wavio
 
-codename = sys.argv[1]
-codename_capped = codename.upper()
-
 if len(sys.argv) < 2:
     print("Error: No name")
     exit()
+
+codename = sys.argv[1]
+codename_capped = codename.upper()
 
 generatedDirectoryPath = codename
 generatedWavsDirectoryPath = codename + "/wavs"
@@ -49,8 +49,9 @@ for entry in os.listdir(rawAudioDirectoryPath):
             newListFilename = "datasets/" + codename + "/wavs/" + codename_capped + "-" + str(count) + ".wav";
             newWaveListFilename = "datasets/" + codename + "/wavs/" + codename_capped + "-" + str(count) + ".wav";
 
-            y, s = librosa.load(entry, sr=22050)
-            wavio.write(generatedWavsDirectoryPath + "/" + newFilename + ".wav", y, 22050, sampwidth=2)
+            print("processing: ", entry)
+            #y, s = librosa.load(entry, sr=22050)
+            #wavio.write(generatedWavsDirectoryPath + "/" + newFilename + ".wav", y, 22050, sampwidth=2)
 
             entry = entry.replace("’", "'")
             entry = entry.replace("“", "\"")

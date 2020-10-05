@@ -59,34 +59,45 @@ for k in waveglow.convinv:
     k.float()
 denoiser = Denoiser(waveglow)
 
-evaluation_file = open("evaluation_text.txt", "r")
-text = evaluation_file.read()
-sequence = np.array(text_to_sequence(text, ['english_cleaners']))[None, :]
-sequence = torch.autograd.Variable(
-    torch.from_numpy(sequence)).cuda().long()
+evaluationsDirectory = "evaluations"
+try:
+    os.mkdir(evaluationsDirectory)
+except OSError:
+    print ("No creation of directory")
+else:
+    print ("Created the directory")
 
-mel_outputs, mel_outputs_postnet, _, alignments = model.inference(sequence)
-plot_data((mel_outputs.float().data.cpu().numpy()[0],
-           mel_outputs_postnet.float().data.cpu().numpy()[0],
-           alignments.float().data.cpu().numpy()[0].T))
+with open("evaluation_text.txt") as evaluation_file:
+    lines = evaluation_file.read().splitlines()
+    for line in lines:
+        sequence = np.array(text_to_sequence(line, ['english_cleaners']))[None, :]
+        sequence = torch.autograd.Variable(
+            torch.from_numpy(sequence)).cuda().long()
 
-with torch.no_grad():
-    audio = waveglow.infer(mel_outputs_postnet, sigma=0.666)
-ipd.Audio(audio[0].data.cpu().numpy(), rate=hparams.sampling_rate)
+        mel_outputs, mel_outputs_postnet, _, alignments = model.inference(sequence)
+        plot_data((mel_outputs.float().data.cpu().numpy()[0],
+                mel_outputs_postnet.float().data.cpu().numpy()[0],
+                alignments.float().data.cpu().numpy()[0].T))
 
-audio_exp = ipd.Audio(audio.cpu().numpy(), rate=hparams.sampling_rate)
-audio_exp = AudioSegment(audio_exp.data, frame_rate=22050, sample_width=2, channels=1)
-audio_exp.export("evaluation.mp3", format="mp3", bitrate="64k")
+        with torch.no_grad():
+            audio = waveglow.infer(mel_outputs_postnet, sigma=0.666)
+        ipd.Audio(audio[0].data.cpu().numpy(), rate=hparams.sampling_rate)
 
-print("Unfiltered synthesis done!")
+        line_filename = line.replace(".", "").replace("?", "~")
 
-audio_denoised = denoiser(audio, strength=0.01)[:, 0]
-ipd.Audio(audio_denoised.cpu().numpy(), rate=hparams.sampling_rate)
+        audio_exp = ipd.Audio(audio.cpu().numpy(), rate=hparams.sampling_rate)
+        audio_exp = AudioSegment(audio_exp.data, frame_rate=22050, sample_width=2, channels=1)
+        audio_exp.export(evaluationsDirectory + "/" + line_filename + ".mp3", format="mp3", bitrate="64k")
 
-audio_denoised_exp = ipd.Audio(audio_denoised.cpu().numpy(), rate=hparams.sampling_rate)
-audio_denoised_exp = AudioSegment(audio_denoised_exp.data, frame_rate=22050, sample_width=2, channels=1)
-audio_denoised_exp.export("evaluation-denoised.mp3", format="mp3", bitrate="64k")
+        print("Unfiltered synthesis of " + line + " done!")
 
-print("Denoised synthesis done!")
+        audio_denoised = denoiser(audio, strength=0.01)[:, 0]
+        ipd.Audio(audio_denoised.cpu().numpy(), rate=hparams.sampling_rate)
+
+        audio_denoised_exp = ipd.Audio(audio_denoised.cpu().numpy(), rate=hparams.sampling_rate)
+        audio_denoised_exp = AudioSegment(audio_denoised_exp.data, frame_rate=22050, sample_width=2, channels=1)
+        audio_denoised_exp.export(evaluationsDirectory + "/" + line_filename + "-denoised.mp3", format="mp3", bitrate="64k")
+
+        print("Denoised synthesis of " + line + " done!")
 
 sys.exit()
